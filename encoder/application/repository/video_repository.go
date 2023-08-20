@@ -14,7 +14,6 @@ type VideoRepository interface {
 
 type VideoRepositoryDb struct {
 	Db *gorm.DB
-	//repository VideoRepository
 }
 
 func NewVideoRepository(db *gorm.DB) *VideoRepositoryDb {
@@ -45,7 +44,7 @@ func (this *VideoRepositoryDb) Find(id string) (*domain.Video, error) {
 		return nil, fmt.Errorf("id must not be null")
 	}
 
-	this.Db.First(&video, "id = ?", id)
+	this.Db.Preload("Jobs").First(&video, "id = ?", id)
 
 	if video.ID != "" {
 		return &video, nil
