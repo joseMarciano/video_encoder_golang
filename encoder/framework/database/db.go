@@ -3,6 +3,8 @@ package database
 import (
 	"encoder/domain"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	_ "github.com/lib/pq"
 	"log"
 )
 
@@ -59,6 +61,13 @@ func (d *Database) Connect() (*gorm.DB, error) {
 		d.Db.AutoMigrate(
 			&domain.Video{},
 			&domain.Job{},
+		)
+
+		d.Db.Model(domain.Job{}).AddForeignKey(
+			"video_id",
+			"videos (id)",
+			"CASCADE",
+			"CASCADE",
 		)
 	}
 
