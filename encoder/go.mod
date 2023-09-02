@@ -8,7 +8,8 @@ require (
 )
 
 require (
+	github.com/aws/aws-sdk-go v1.44.328
 	github.com/jinzhu/gorm v1.9.16
-	github.com/lib/pq v1.10.9 // indirect
+	github.com/lib/pq v1.10.9
 	github.com/satori/go.uuid v1.2.0
 )
