@@ -14,7 +14,7 @@ import (
 	"os/exec"
 )
 
-const localStoragePath = "local-path-enconder"
+const LOCAL_STORAGE_PATH = "local-path-enconder"
 const MP4 = ".mp4"
 const FRAG = ".frag"
 
@@ -30,7 +30,7 @@ func NewVideoService(video *domain.Video) VideoService {
 }
 
 func (this *VideoService) Download(bucketName string) error {
-	directory := localStoragePath + "/" + this.Video.ID
+	directory := LOCAL_STORAGE_PATH + "/" + this.Video.ID
 	err := os.MkdirAll(directory, os.ModePerm)
 	if err != nil {
 		log.Fatalf("error on Mkdir %s", err.Error())
@@ -75,7 +75,7 @@ func (this *VideoService) Download(bucketName string) error {
 }
 
 func (this *VideoService) Fragment() error {
-	directory := localStoragePath + "/" + this.Video.ID + "/" + this.Video.ID
+	directory := LOCAL_STORAGE_PATH + "/" + this.Video.ID + "/" + this.Video.ID
 	source := directory + MP4
 	target := directory + FRAG
 
@@ -88,6 +88,52 @@ func (this *VideoService) Fragment() error {
 	}
 
 	printOutput(output)
+
+	return nil
+}
+
+func (this *VideoService) Encode() error {
+	cmdArgs := []string{}
+	directory := LOCAL_STORAGE_PATH + "/" + this.Video.ID
+	cmdArgs = append(cmdArgs, directory+"/"+this.Video.ID+FRAG)
+	cmdArgs = append(cmdArgs, "--use-segment-timeline")
+	cmdArgs = append(cmdArgs, "-o")
+	cmdArgs = append(cmdArgs, directory+"/out")
+	cmdArgs = append(cmdArgs, "-f")
+	cmdArgs = append(cmdArgs, "--exec-dir")
+	cmdArgs = append(cmdArgs, "/opt/bento4/bin/")
+	cmd := exec.Command("mp4dash", cmdArgs...)
+
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+		log.Fatalf("error on Encode | CombinedOutput %s", err.Error())
+		return err
+	}
+
+	printOutput(output)
+
+	return nil
+}
+
+func (this *VideoService) Finish() error {
+	directory := LOCAL_STORAGE_PATH + "/" + this.Video.ID + "/" + this.Video.ID
+	mp4 := directory + MP4
+	frag := directory + FRAG
+
+	err := os.Remove(mp4)
+	if err != nil {
+		log.Println("Error on remove ", this.Video.ID, ".mp4")
+		return err
+	}
+
+	err = os.Remove(frag)
+	if err != nil {
+		log.Println("Error on remove ", this.Video.ID, ".frag")
+		return err
+	}
+
+	log.Println("Files has been removed ", this.Video.ID)
 
 	return nil
 }
