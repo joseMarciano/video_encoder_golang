@@ -3,10 +3,6 @@ package services
 import (
 	"encoder/application/repository"
 	"encoder/domain"
-	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"io/ioutil"
 	"log"
@@ -37,12 +33,7 @@ func (this *VideoService) Download(bucketName string) error {
 		return err
 	}
 
-	get, _ := credentials.NewEnvCredentials().Get()
-	fmt.Printf("Credentilas %s - %s ", get.AccessKeyID, get.SecretAccessKey)
-	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String("us-east-1"),
-		Credentials: credentials.NewEnvCredentials(),
-	})
+	sess := GetS3Session()
 
 	if err != nil {
 		return err
