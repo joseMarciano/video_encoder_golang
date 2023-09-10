@@ -5,3 +5,6 @@ services:
     build: .
     volumes:
       - .:/go/src/
+    environment:
+      AWS_ACCESS_KEY_ID: your-aws-access-key
+      AWS_SECRET_ACCESS_KEY: your-aws-secret-key
